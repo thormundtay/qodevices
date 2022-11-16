@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qodevicesdevel"
+version = "0.0.1"
+authors = [
+  { name="Thormund", email="thormund@nus.edu.sg" },
+]
+maintainers = [
+  { name="Thormund", email="thormund@nus.edu.sg" },
+]
+description = "Driver files for the-fibre-lab"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating SYstem :: OS Independent",
+]
+
+# [project.urls]
+# "Homepage" = https://github.com/the-fibre-lab/python-drivers
+# "Bug Tracker" = https://github.com/the-fibre-lab/python-drivers/issues
