@@ -4,7 +4,7 @@ This repository is designed for Python 3.10+, to replace the `~/programs/python_
 ## Installation
 Dependencies:
 1. Linux Packages
-On OpenSUSE Leap, run
+On OpenSUSE Leap, run  
 ```# zypper install python3-usb```
 2. Python Packages
 The version of usbtmc used by this package is **strictly** from [this usbtmc github repository](https://github.com/python-ivi/python-usbtmc).
@@ -18,7 +18,11 @@ In contrast to the recommendations of `python-ivi/python-usbtmc`, please ensure 
 
 This package:
 ```$ pip install -e <path/url>```
-The `-e` flag ensures that the package is installed in "develop" mode, and will reference the file in its current location. Removing it will fail importing ofthe package.
+The `-e` flag ensures that the package is installed in "develop" mode, and will reference the file in its current location. Removing it will fail importing of the package.
+
+For a stable version directly from github, please use  
+```$ pip install git+ssh://git@github.com/the-fibre-lab/python_drivers.git``` or equivalently without SSH access,  
+```$ pip install https://github.com/the-fibre-lab/python_drivers.git``` if the repository was public.
 
 ## Usage example
 After installing, ensure that the package shows up under `pip list`. The package name should be `qodevices`.
@@ -33,7 +37,7 @@ The system tree should look something like
 │   ...
 ├── tests
 │   └── ...
-├── pyproject.toml
+├── pyproject.toml  <- **name as showin in pip is inherited from here!**
 ├── README.md
 └── requirements.txt
 ```
