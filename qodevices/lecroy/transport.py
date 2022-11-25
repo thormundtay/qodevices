@@ -1,3 +1,13 @@
+"""
+LeCroyDSO initializers
+
+Thormund 25 Nov 2022 - Add functions for ease of connecting to DSO via USBTMC
+"""
+__all__ = [
+        "get_oscilloscope_addr",
+        "connect_dso"
+    ]
+
 from pyvisa import ResourceManager
 from lecroydso import LeCroyVISA, LeCroyDSO
 from lecroydso.errors import DSOConnectionError
@@ -27,3 +37,4 @@ def connect_dso(resource_address: str, log: bool=False) -> LeCroyDSO:
 
 if __name__ == '__main__':
     print(f"{get_oscilloscope_addr() = }")
+    

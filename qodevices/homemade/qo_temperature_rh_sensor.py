@@ -10,6 +10,8 @@ Seth Poh, 2022.04.18 - created temperature and rh sensor control script
 Thormund, 2022.11.18 - switched pyserial dependency, depreciating getresponse
 
 """
+__all__ = ["qoTemperatureRhSensor"]
+
 from ..baseclass.baseserial import serial_comm
 
 class qoTemperatureRhSensor(serial_comm):

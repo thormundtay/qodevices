@@ -9,6 +9,8 @@ To Do:
 Seth, 2022.03.29 - overhauled fibre driver control script
 Thormund, 2022.11.18   - switched pyserial dependencies, added type hinting
 """
+__all__ = ["qoFibreSwitchDriver"]
+
 from ..baseclass.baseserial import serial_comm
 
 ##### limit constants #####

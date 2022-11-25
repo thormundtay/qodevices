@@ -9,6 +9,8 @@ To Do:
 Seth Poh, 2022.04.05   - overhauled optical power meter driver script
 Thormund, 2022.11.18   - switched pyserial dependencies, added type hinting
 """
+__all__ = ["qoDigitalPowerMeter"]
+
 from ..baseclass.baseserial import serial_comm
 
 class qoDigitalPowerMeter(serial_comm):

@@ -15,6 +15,8 @@ Thormund, 2022.11.18 - switched pyserial dependency, depreciating getresponse
                      - error message handling should follow as accordingly
 
 """
+__all__ = ["qoLaserDriver"]
+
 from ..baseclass.baseserial import serial_comm
 
 ##### limit constants #####

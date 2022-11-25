@@ -9,6 +9,8 @@ To Do:
 Seth Poh, 2022.04.18 - created strain gauge driver control script
 Thormund, 2022.11.18 - switched pyserial dependency, depreciating getresponse
 """
+__all__ = ["qoStrainGaugeDriver"]
+
 from ..baseclass.baseserial import serial_comm
 
 ##### limit constants #####
