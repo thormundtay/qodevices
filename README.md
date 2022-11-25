@@ -5,14 +5,15 @@ This repository is designed for Python 3.10+, to replace the `~/programs/python_
 Dependencies:
 1. Linux Packages
 On OpenSUSE Leap, run  
-```# zypper install python3-usb```
+```# zypper install python3-usb python3-pyserial```
 2. Python Packages
 The version of usbtmc used by this package is **strictly** from [this usbtmc github repository](https://github.com/python-ivi/python-usbtmc).
 Installation **in the appropriate version of python** (see pyenv/[venv](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)) can be done via
 ```$ pip install https://github.com/user/repository/archive/branch.zip```
 Edit the url as appropriate. Do take note that the url ends with a `.zip`.
 pyserial utilised by this package is as provided pip.
-**Alternatively**, the provided `requirements.txt` provides the necessary dependencies, and can be installed just by calling `pip install -r requirements.txt` (in the appropriate `$PWD`).
+**Alternatively**, the provided `requirements.txt` provides the necessary dependencies, and can be installed just by calling `pip install -r requirements.txt` (in the appropriate `$PWD`).  
+In the event that the linux packages were not previously installed, installing python from source to allow the dependecies to populate the backend is necessary. For example on pyenv, this can easily be done by ```$ pyenv install 3.10.5``` for example.
 3. Device permissions/udev
 In contrast to the recommendations of `python-ivi/python-usbtmc`, please ensure that udev rules have `0666` instead of `0660` for permissions. Further details are as documented in Confluence.
 
@@ -37,7 +38,7 @@ The system tree should look something like
 │   ...
 ├── tests
 │   └── ...
-├── pyproject.toml  <- **name as showin in pip is inherited from here!**
+├── pyproject.toml <- **name as showin in pip is inherited from here!**
 ├── README.md
 └── requirements.txt
 ```

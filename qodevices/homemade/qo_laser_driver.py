@@ -46,7 +46,7 @@ class qoLaserDriver(serial_comm):
         if not device_path:
             raise ValueError('No device path given')
         try:
-            super().__init__(self, device_path, timeout=2)
+            super().__init__(device_path, timeout=2)
         except:
             print('The indicated device cannot be found')
 

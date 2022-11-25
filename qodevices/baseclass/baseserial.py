@@ -8,19 +8,21 @@ Thormund 18 Nov 2022
 """
 from serial import Serial
 
-class serial_comm:
+class serial_comm(Serial):
     """Basic class for serial communication"""
     def __init__(self, port, timeout: float = 2) -> None:
-        self.serial = self._open_port(port, timeout)
+        # self.serial = self._open_port(port, timeout)
+        super().__init__(port, timeout=timeout)
         self.write('a')  # flush io buffer
-        self.read()   # will read unknown command
+        self._serial_read()   # will read unknown command
 
-    def _open_port(self, port, timeout:float) -> Serial:
-        ser = Serial(port, timeout)
-        return ser
+    # def _open_port(self, port, timeout:float) -> Serial:
+    #     ser = Serial(port, timeout)
+    #     print('ser obtained')
+    #     return ser
 
     def close_port(self) -> None:
-        self.serial.close()
+        self.close()
 
     def write(self, string: str) -> None:
         """writes to serial device
@@ -28,14 +30,14 @@ class serial_comm:
         -----
         string: UTF-8 encoded string. converts to binary before writing.
         """
-        self.serial.write((string + '\n').encode())
+        super().write((string + '\n').encode())
 
-    def read(self) -> bytes:
+    def _serial_read(self) -> bytes:
         """Reads from serial device"""
         # old get_response method using read(64) is unreliable
-        return self.serial.readline().strip()
+        return super().readline().strip()
 
     def ask(self, string: str) -> bytes:
         """Queries response after writing to device."""
         self.write(string)
-        return self.read()
+        return self._serial_read()
