@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qodevices"
-version = "0.1.3"
+version = "0.1.4"
 authors = [
   { name="Thormund", email="thormund@nus.edu.sg" },
 ]
@@ -19,7 +19,7 @@ classifiers = [
     "Operating SYstem :: OS Independent",
 ]
 dependencies = [
-    "LeCroyDSO @ git+https://github.com/TeledyneLeCroy/lecroydso.git@main",
+    "LeCroyDSO @ git+ssh://git@github.com/the-fibre-lab/lecroydso.git@main",
     "pyserial",
     "python-usbtmc @ git+https://github.com/python-ivi/python-usbtmc.git@master",
     "pyusb",
