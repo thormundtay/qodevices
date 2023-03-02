@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qodevices"
-version = "0.1.4"
+version = "0.1.6"
 authors = [
   { name="Thormund", email="thormund@nus.edu.sg" },
 ]
