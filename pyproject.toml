@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qodevices"
-version = "0.1.6"
+version = "0.1.7"
 authors = [
   { name="Thormund", email="thormund@nus.edu.sg" },
 ]
@@ -16,7 +16,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Operating SYstem :: OS Independent",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "LeCroyDSO @ git+ssh://git@github.com/the-fibre-lab/lecroydso.git@main",
@@ -24,7 +24,8 @@ dependencies = [
     "python-usbtmc @ git+https://github.com/python-ivi/python-usbtmc.git@master",
     "pyusb",
     "PyVISA",
-    "PyVISA-py"
+    "PyVISA-py",
+    "numpy"
 ]
 
 # [project.urls]
