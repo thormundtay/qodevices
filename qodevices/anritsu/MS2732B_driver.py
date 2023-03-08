@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Anritsu Spectrum Analyzer MS2732B driver
+Anritsu Spectrum Analyzer MS2732B USBTMC driver
 
 Thormund - 2023 Initial version for interacting with Anritsu PM2732B RF
     Spectrum Analyzer. Adds basic methods such as specifying Centre Frequency,
@@ -10,39 +10,35 @@ Thormund - 2023 Initial version for interacting with Anritsu PM2732B RF
 __all__ = ["AnritsuMS2732BDriver"]
 
 import logging
-from pyvisa.resources.usb import USBInstrument
-from pyvisa import ResourceManager
-from pyvisa.errors import VisaIOError
+from usbtmc.usbtmc import Instrument
 from time import sleep
 
 
-class AnritsuMS2732BDriver(USBInstrument):
-    def __init__(self, rsc_str: str, delayed_write: bool=False):
+class AnritsuMS2732BDriver(Instrument):
+    def __init__(self, *args, **kwargs):
         """Generates instance of Anritsu MS2732B driver.
 
         Documentation is as provided in https://dl.cdn-anritsu.com/en-us/test-measurement/files/Manuals/Programming-Manual/10580-00176.pdf # noqa: E501
         or newer.
-        Class is build on pvisa library from pyvisa/pyvisa repository.
+        Class is build on usbtmc library from python-ivi/python-usbtmc
+        repository.
         """
-        rm = ResourceManager()
-        self.my_resource = rm.open_resource(rsc_str)
-        print("""Resource has been opened.
-            Close connection by using del on instance.""")
+        super().__init__(*args, **kwargs)
         # self.my_resource.flush()  # Not implemented
 
         # TODO: Store into class or it might get purged
         self.trace_preamble = None
 
         # See write_to_device method.
-        self.delayed_write = delayed_write
+        self.delayed_write = False
         self.write_queue = []
 
     # Typecasts all methods and properties of self.my_resource to self
-    def __getattr__(self, __name: str):
-        if __name in ('_logging_extra', '_resource_name', '_session', 'visalib'):
-            return getattr(self.my_resource, __name)
-        else:
-            raise AttributeError(f"{__name = }")
+    # def __getattr__(self, __name: str):
+    #     if __name in ('_logging_extra', '_resource_name', '_session', 'visalib'):
+    #         return getattr(self.my_resource, __name)
+    #     else:
+    #         raise AttributeError(f"{__name = }")
 
     def __del__(self) -> None:
         if self.my_resource._session is not None:
@@ -63,7 +59,7 @@ class AnritsuMS2732BDriver(USBInstrument):
 
     @property
     def idn(self) -> str:
-        return self.query('*IDN?')
+        return self.ask('*IDN?')
 
     # FORMat Subsystem:
     @property
@@ -92,7 +88,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         you’ve chosen (4 for both INTeger,32 and REAL,32...so 2204/4) to get
         the number of data points (in this example, 551).
         """
-        return self.query(":FORMat:READings:DATA?")
+        return self.ask(":FORMat:READings:DATA?")
 
     @format.setter
     def format(self, value: str) -> None:
@@ -136,7 +132,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         flash drive.
         Source: https://dl.cdn-anritsu.com/en-us/test-measurement/ohs/10450-00050N/index.html#page/Programming/Ch_SCPI_All_Modes.4.4.html # noqa: E501
         """
-        return self.query(":MMEMory:MSIS?")
+        return self.ask(":MMEMory:MSIS?")
 
     @mmem_msis.setter
     def mmem_msis(self, value: str):
@@ -182,9 +178,9 @@ class AnritsuMS2732BDriver(USBInstrument):
             # have it as an in-built command.
 
             # TODO: process into list and update if new values?
-            self.trace_preamble = self.query(':TRACe:PREamble?')
+            self.trace_preamble = self.ask(':TRACe:PREamble?')
         else:
-            temp = self.query(':TRACe:PREamble?')
+            temp = self.ask(':TRACe:PREamble?')
             logging.INFO('trac_pre called more than once!')
             logging.INFO(f"query(':TRACe:PREamble?') has yielded:\n{temp}")
             if len(temp) > 3:
@@ -200,7 +196,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         trc_type : str
             Trace type. ACLR | SPECtrum | EMISsion | DEMod
         """
-        # return self.query(f':TRACe:DATA? {trc_type}')
+        # return self.ask(f':TRACe:DATA? {trc_type}')
         print('"trac" VISA command tested to be faulty (as of Firmware V4.3).')
         return None
 
@@ -233,7 +229,7 @@ class AnritsuMS2732BDriver(USBInstrument):
     @property
     def init_cont(self) -> str:
         """Specifies if sweep measurement is continuously triggered."""
-        return self.query(":INITiate:CONTinuous?")
+        return self.ask(":INITiate:CONTinuous?")
 
     @init_cont.setter
     def init_cont(self, value) -> None:
@@ -276,7 +272,7 @@ class AnritsuMS2732BDriver(USBInstrument):
     @property
     def sens_aver_coun(self) -> str:
         """Gets the number of traces to average"""
-        return self.query(":SENSe:AVERage:COUNt?")
+        return self.ask(":SENSe:AVERage:COUNt?")
 
     @sens_aver_coun.setter
     def sens_aver_coun(self, value: int) -> None:
@@ -292,7 +288,7 @@ class AnritsuMS2732BDriver(USBInstrument):
     @property
     def sens_aver_type(self) -> str:
         """Gets how successive traces are combined to produce resulting value."""
-        return self.query(":SENSe:AVERage:TYPE?")
+        return self.ask(":SENSe:AVERage:TYPE?")
 
     @sens_aver_type.setter
     def sens_aver_type(self, value: str) -> None:
@@ -317,7 +313,7 @@ class AnritsuMS2732BDriver(USBInstrument):
     #
     # Source: https://dl.cdn-anritsu.com/en-au/test-measurement/files/Manuals/Operation-Manual/MS269xA/MS269xA_2830A_40A_50A_Mainframe_Remote_Manual_e_39_0.pdf # noqa: E501
     # """
-    #     return self.query(':SENSe:ROSCillator:EXTernal:FREQuency?')
+    #     return self.ask(':SENSe:ROSCillator:EXTernal:FREQuency?')
 
     # SENSe:BANDwidth subsystem contains commands related to filter bandwidth
     # of the instrument
@@ -330,7 +326,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         sense_bandwith_resolution : str
             The current resolution bandwidth.
         """
-        return self.query(":SENSe:BANDwidth:RESolution?")
+        return self.ask(":SENSe:BANDwidth:RESolution?")
 
     @sens_band_res.setter
     def sens_band_res(self, bandwidth: float) -> None:
@@ -357,7 +353,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         str
             The current state of the resolution bandwidth coupling. Returns 'ON' or 'OFF'.
         """
-        response = self.query(":SENSe:BANDwidth:RESolution:AUTO?").strip()
+        response = self.ask(":SENSe:BANDwidth:RESolution:AUTO?").strip()
         if response == '1' or response == 'ON':
             return 'ON'
         elif response == '0' or response == 'OFF':
@@ -394,7 +390,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         float
             The current ratio of the resolution bandwidth to the span.
         """
-        return float(self.query(":SENSe:BANDwidth:RESolution:RATio?"))
+        return float(self.ask(":SENSe:BANDwidth:RESolution:RATio?"))
 
     @sens_band_res_rat.setter
     def sens_band_res_rat(self, ratio: float) -> None:
@@ -432,7 +428,7 @@ class AnritsuMS2732BDriver(USBInstrument):
             The current detection method. Can be one of 'POSitive',
             'RMS', 'NEGative', or 'SAMPle'.
         """
-        return self.query(":SENSe:DETector:FUNCtion?")
+        return self.ask(":SENSe:DETector:FUNCtion?")
 
     @sens_det_func.setter
     def sens_det_func(self, func: str) -> None:
@@ -461,7 +457,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         center_freq : float
             The current center frequency setting in Hz.
         """
-        return self.query(":SENSe:FREQuency:CENTer?")
+        return self.ask(":SENSe:FREQuency:CENTer?")
 
     @sens_freq_cent.setter
     def sens_freq_cent(self, center_freq: float) -> None:
@@ -487,7 +483,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         freq_span : str
             The current frequency span.
         """
-        return self.query(":SENSe:FREQuency:SPAN?")
+        return self.ask(":SENSe:FREQuency:SPAN?")
 
     @sens_freq_span.setter
     def sens_freq_span(self, freq_span: float) -> None:
@@ -518,7 +514,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         str
             The current start frequency in Hz.
         """
-        return self.query(":SENSe:FREQuency:STARt?")
+        return self.ask(":SENSe:FREQuency:STARt?")
 
     @sens_freq_start.setter
     def sens_freq_start(self, start_freq: float) -> None:
@@ -543,7 +539,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         freq_stop
             The current stop frequency in Hz.
         """
-        return self.query(":SENSe:FREQuency:STOP?")
+        return self.ask(":SENSe:FREQuency:STOP?")
 
     @sens_freq_stop.setter
     def sens_freq_stop(self, freq: float) -> None:
@@ -570,7 +566,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         atten : str
             The current input attenuation in dB.
         """
-        return self.query(":SENSe:POWer:RF:ATTenuation?")
+        return self.ask(":SENSe:POWer:RF:ATTenuation?")
 
     @sens_pow_rf_att.setter
     def sens_pow_rf_att(self, atten: float) -> None:
@@ -595,7 +591,7 @@ class AnritsuMS2732BDriver(USBInstrument):
             The current state of the input attenuation coupling. Returns True for ON
             and False for OFF.
         """
-        return self.query(":SENSe:POWer:RF:ATTenuation:AUTO?")
+        return self.ask(":SENSe:POWer:RF:ATTenuation:AUTO?")
 
     @sens_pow_rf_att_auto.setter
     def sens_pow_rf_att_auto(self, state: str) -> None:
@@ -622,7 +618,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         sens_pow_rf_gain_stat : str
             The current state of the preamp.
         """
-        return self.query(":SENSe:POWer:RF:GAIN:STATe?")
+        return self.ask(":SENSe:POWer:RF:GAIN:STATe?")
 
     @sens_pow_rf_gain_stat.setter
     def sens_pow_rf_gain_stat(self, state: str) -> None:
@@ -651,7 +647,7 @@ class AnritsuMS2732BDriver(USBInstrument):
         float
             The minimum sweep time in seconds.
         """
-        return self.query(":SENSe:SWEep:TIME?")
+        return self.ask(":SENSe:SWEep:TIME?")
 
     @sens_swe_time.setter
     def sens_swe_time(self, time: float) -> None:
@@ -683,4 +679,4 @@ class AnritsuMS2732BDriver(USBInstrument):
             int(00000000_1000000, 2) - When sweep is complete/
             For other bits, please refer to documentation.
         """
-        return int(self.query(":STATus:OPERation?"))
+        return int(self.ask(":STATus:OPERation?"))
