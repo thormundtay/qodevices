@@ -668,7 +668,7 @@ class AnritsuMS2732BDriver(USBInstrument):
             [10e-6, 600] seconds.
         """
         if not 10e-6 <= time <= 600:
-            raise ValueError(f"Invalid sweep time: {time}. Must be in the range [10e-6, 600e6].")
+            raise ValueError(f"Invalid sweep time: {time}. Must be in the range [10e-6, 600].")
 
         self.write(f":SENSe:SWEep:TIME {time} s")
 
@@ -688,3 +688,90 @@ class AnritsuMS2732BDriver(USBInstrument):
             For other bits, please refer to documentation.
         """
         return int(self.ask(":STATus:OPERation?"))
+    
+    # CALCulate Subsystem
+    # The commands in this subsystem process data that has been colleted in the
+    # SENSe subsystem
+    @property
+    def calc_mark_aoff(self) -> None:
+        """Turns off all markers."""
+        self.write(':CALCulate:MARKer:AOFF')
+
+    @property
+    def calc_mark(self, num: int=1) -> bool:
+        """Gets the on/off state of specified marker.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        return self.ask(f":CALCulate:MARKer{num}:STATe?")
+
+    @calc_mark.setter
+    def calc_mark(self, num: int=1, stat: bool=False) -> bool:
+        """Sets the on/off state of specified marker.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        stat : bool
+            desired state of marker
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        if not isinstance(stat, bool):
+            raise ValueError(f"Invalid marker state: {stat}. Must be boolean.")
+
+        if stat:
+            self.write(f":CALCulate:MARKer{num}:STATe 1")
+        elif not stat:
+            self.write(f":CALCulate:MARKer{num}:STATe 0")
+
+    @property
+    def calc_mark_x(self, num: int=1) -> str:
+        """Gets the x-axis parameter of specified marker.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        return self.ask(f":CALCulate:MARKer{num}:X?")
+
+    @calc_mark_x.setter
+    def calc_mark_x(self, num: int=1, x_param: str='') -> bool:
+        """Sets the x-axis parameter of specified marker.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        x_param : str
+            Value as defined in current x-axis units.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        if x_param == '':
+            raise ValueError(f"Invalid x_param given: {x_param}")
+
+        self.write(f":CALCulate:MARKer{num}:X {x_param}")
+
+    @property
+    def calc_mark_y(self, num: int=1) -> str:
+        """Reads the y-axis parameter of specified marker.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        return self.ask(f":CALCulate:MARKer{num}:Y?")
+    
