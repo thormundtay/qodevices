@@ -1,12 +1,13 @@
-import os
+from os.path import join, dirname
 
 def main():
     if input('Do you want to generate VISA driver from TMC? [Y/N] ').strip().upper() != 'Y':
         return
     
-    path_to_tmc = os.path.join(os.path.dirname(__file__), 'MS2732B_driver.py')
-    path_to_visa = os.path.join(os.path.dirname(__file__), 'MS2732B_VISA_driver.py')
-    path_to_visa_header = os.path.join(os.path.dirname(__file__), 'MS2732B_VISA_driver_header.txt')
+    dirname2 = lambda x: dirname(dirname(x))
+    path_to_tmc = join(dirname2(__file__), 'anritsu/MS2732B_driver.py')
+    path_to_visa = join(dirname2(__file__), 'anritsu/MS2732B_VISA_driver.py')
+    path_to_visa_header = join(dirname(__file__), 'MS2732B_VISA_driver_header.txt')
     with open(path_to_tmc, 'r') as tmc_file:
         src = tmc_file.read()
 
@@ -19,7 +20,7 @@ def main():
         header = header_file.read()
 
     result = header + src[idx:]
-    # print(result[:1950])
+    # print(result[:2400])
 
     with open(path_to_visa, 'w') as visa_file:
         visa_file.write(result)
