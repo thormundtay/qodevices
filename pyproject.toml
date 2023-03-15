@@ -30,15 +30,15 @@ dependencies = [
 
 # [tool.setuptools]
 # packages = ["qodevices"]
-# package-dir = {"" = "qodevices"}
+# package-dir = {"" = "."}
 
 # [tool.setuptools.package-dir]
 # qodevices = "qodevices"
 
 [tool.setuptools.packages.find]
-# where = ["qodevices"]
-# include = ["*"]
-exclude = ["*_constructor"]
+where = ["."]
+include = ["qodevices.*"]
+exclude = ["qodevices.*_constructor"]
 namespaces = false
 
 # [project.urls]
