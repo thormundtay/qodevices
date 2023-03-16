@@ -254,7 +254,7 @@ class AnritsuMS2732BDriver(Instrument):
         “sweep complete” bit is set to 1, data is ready to be retrieved.
         """
         self.write(":INITiate")
-        sleep(0.1)
+        sleep(0.2)
 
     @property
     def init_tgen(self) -> str:
@@ -680,15 +680,26 @@ class AnritsuMS2732BDriver(Instrument):
         return int(self.ask(":STATus:OPERation?"))
     
     # CALCulate Subsystem
-    # The commands in this subsystem process data that has been colleted in the
+    # The commands in this subsystem process data that has been collected in the
     # SENSe subsystem
+
+    # CALCulate:LIMit Subsystem
+    # The commands in this subsystem process data that has  been collected in the
+    # SENSe subsystem
+    # alarms
+    # not implemented
+
+    # limit points
+    # not implemented
+
+    # CALCulate:MARKer Subsytem
+    # Contains commands to manipulate data markers
     @property
     def calc_mark_aoff(self) -> None:
         """Turns off all markers."""
         self.write(':CALCulate:MARKer:AOFF')
 
-    @property
-    def calc_mark(self, num: int=1) -> bool:
+    def get_calc_mark(self, num: int=1) -> bool:
         """Gets the on/off state of specified marker.
 
         Parameters
@@ -699,18 +710,24 @@ class AnritsuMS2732BDriver(Instrument):
         if not (1<=num<=6 and isinstance(num, int)):
             raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
         return self.ask(f":CALCulate:MARKer{num}:STATe?")
+    calc_mark = property(get_calc_mark)
 
     @calc_mark.setter
-    def calc_mark(self, num: int=1, stat: bool=False) -> bool:
+    def calc_mark(self, val: tuple=(1, False)) -> bool:
         """Sets the on/off state of specified marker.
 
         Parameters
         ----------
+        val : tuple(num, stat)
+            2-element tuple
         num : int
             marker number, from 1 to 6. Defaults to 1.
         stat : bool
             desired state of marker
         """
+        if len(val) != 2:
+            raise ValueError(f"Invalid val argument: {val}. Expected 2 elements.")
+        num, stat = val
         if not (1<=num<=6 and isinstance(num, int)):
             raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
         if not isinstance(stat, bool):
@@ -721,8 +738,7 @@ class AnritsuMS2732BDriver(Instrument):
         elif not stat:
             self.write(f":CALCulate:MARKer{num}:STATe 0")
 
-    @property
-    def calc_mark_x(self, num: int=1) -> str:
+    def get_calc_mark_x(self, num: int=1) -> str:
         """Gets the x-axis parameter of specified marker.
 
         Parameters
@@ -733,18 +749,24 @@ class AnritsuMS2732BDriver(Instrument):
         if not (1<=num<=6 and isinstance(num, int)):
             raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
         return self.ask(f":CALCulate:MARKer{num}:X?")
+    calc_mark_x = property(get_calc_mark_x)
 
     @calc_mark_x.setter
-    def calc_mark_x(self, num: int=1, x_param: str='') -> bool:
+    def calc_mark_x(self, val: tuple=(1, '')) -> bool:
         """Sets the x-axis parameter of specified marker.
 
         Parameters
         ----------
+        val : tuple(num, x_param)
+            2-element tuple
         num : int
             marker number, from 1 to 6. Defaults to 1.
         x_param : str
             Value as defined in current x-axis units.
         """
+        if len(val) != 2:
+            raise ValueError(f"Invalid val argument: {val}. Expected 2 elements.")
+        num, x_param = val
         if not (1<=num<=6 and isinstance(num, int)):
             raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
         if x_param == '':
@@ -752,8 +774,7 @@ class AnritsuMS2732BDriver(Instrument):
 
         self.write(f":CALCulate:MARKer{num}:X {x_param}")
 
-    @property
-    def calc_mark_y(self, num: int=1) -> str:
+    def get_calc_mark_y(self, num: int=1) -> float:
         """Reads the y-axis parameter of specified marker.
 
         Parameters
@@ -763,5 +784,175 @@ class AnritsuMS2732BDriver(Instrument):
         """
         if not (1<=num<=6 and isinstance(num, int)):
             raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
-        return self.ask(f":CALCulate:MARKer{num}:Y?")
-    
+        return float(self.ask(f":CALCulate:MARKer{num}:Y?"))
+    calc_mark_y = property(get_calc_mark_y)
+
+    # delta markers
+    def get_calc_mark_delt_stat(self, num: int=1):
+        """Sets the specified delta marker on/off.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        return self.ask(f":CALCulate:MARKer{num}:DELTa:STATe?")
+    calc_mark_delt_stat = property(get_calc_mark_delt_stat)
+
+    @calc_mark_delt_stat.setter
+    def calc_mark_delt_stat(self, val: tuple=(1, False)) -> bool:
+        """Sets the specified marker on/off.
+
+        Parameters
+        ----------
+        val : tuple(num, stat)
+            2-element tuple
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        stat : bool
+            desired state of marker
+        """
+        if len(val) != 2:
+            raise ValueError(f"Invalid val argument: {val}. Expected 2 elements.")
+        num, stat = val
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        if not isinstance(stat, bool):
+            raise ValueError(f"Invalid state: {stat}. Must be boolean.")
+
+        self.write(f":CALCulate:MARKer{num}:DELTa:STATe {stat}")
+        sleep(0.2)
+
+    def get_calc_mark_delt_x(self, num: int=1):
+        """Sets the specified delta marker on/off.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        return self.ask(f":CALCulate:MARKer{num}:DELTa:X?")
+    calc_mark_delt_x = property(get_calc_mark_delt_x)
+
+    @calc_mark_delt_x.setter
+    def calc_mark_delt_x(self, val: tuple=(1, '')) -> bool:
+        """Sets the x-axis parameter of specified marker.
+
+        Parameters
+        ----------
+        val : tuple(num, x_param)
+            2-element tuple
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        x_param : str
+            Value as defined in current x-axis units.
+        """
+        if len(val) != 2:
+            raise ValueError(f"Invalid val argument: {val}. Expected 2 elements.")
+        num, x_param = val
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        if x_param == '':
+            raise ValueError(f"Invalid x_param given: {x_param}")
+
+        self.write(f":CALCulate:MARKer{num}:DELTa:X {x_param}")
+        sleep(0.2)
+
+    def get_calc_mark_delt_y(self, num: int=1) -> str:
+        """Reads the y-axis parameter of specified marker.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        return self.ask(f":CALCulate:MARKer{num}:DELTa:Y?")
+    calc_mark_delt_y = property(get_calc_mark_delt_y)
+
+    # peak search
+    def get_calc_mark_max(self, num: int=1) -> None:
+        """Sets the specified delta marker on/off.
+
+        Parameters
+        ----------
+        num : int
+            marker number, from 1 to 6. Defaults to 1.
+        """
+        if not (1<=num<=6 and isinstance(num, int)):
+            raise ValueError(f"Invalid marker number: {num}. Must be between 1 and 6.")
+        self.write(f":CALCulate:MARKer{num}:MAXimum")
+        sleep(0.2)
+    calc_mark_max = property(get_calc_mark_max)
+
+    # peak search left/right/treshold
+    # marker freq to centre ...
+    # not implemented
+
+    # DISPlay subsystem
+    # This subsystem contains commands that modify the display of data for the 
+    # user. They do not modify the way in which data is returned to the 
+    # controller.
+    @property
+    def disp_wind_trac_y_scal_pdi(self) -> float:
+        """Get the current y-axis scale in dB/division.
+
+        Returns
+        -------
+        float
+            The current y-axis scale in dB/division.
+        """
+        return float(self.ask(":DISPlay:WINDow:TRACe:Y:SCALe:PDIVision?"))
+
+    @disp_wind_trac_y_scal_pdi.setter
+    def disp_wind_trac_y_scal_pdi(self, scale: float) -> None:
+        """Set the y-axis scale in dB/division.
+
+        Parameters
+        ----------
+        scale : float
+            The desired y-axis scale in dB/division. Valid range is 1 dB to 15 dB.
+        """
+        if not 1 <= scale <= 15:
+            raise ValueError(f"Invalid scale value: {scale}. Scale must be between 1 and 15 dB/division.")
+        self.write(f":DISPlay:WINDow:TRACe:Y:SCALe:PDIVision {scale}")
+        sleep(0.2)
+
+    @property
+    def disp_wind_trac_y_scal_rlev(self) -> float:
+        """Get the reference level amplitude value for the y-axis.
+
+        Returns
+        -------
+        float
+            The reference level amplitude value for the y-axis.
+
+        """
+        return float(self.ask(":DISPlay:WINDow:TRACe:Y:SCALe:RLEVel?"))
+
+    @disp_wind_trac_y_scal_rlev.setter
+    def disp_wind_trac_y_scal_rlev(self, amplitude: float) -> None:
+        """Set the reference level amplitude value for the y-axis.
+
+        Parameters
+        ----------
+        amplitude : float
+            The reference level amplitude value for the y-axis.
+
+        Raises
+        ------
+        ValueError
+            If the amplitude is not within the range of -130 to 30 when 
+            reference level offset != 0dB.
+
+        """
+        if amplitude < -130 or amplitude > 30:
+            raise ValueError(f"Amplitude value {amplitude} is out of range. Amplitude must be between -130 and 30.")
+
+        self.write(f":DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {amplitude}")
+        sleep(0.2)
