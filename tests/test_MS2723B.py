@@ -3,8 +3,8 @@
 
 import pytest
 import inspect
-from qodevices.anritsu.MS2732B_driver import AnritsuMS2732BDriver as tmc_d
-from qodevices.anritsu.MS2732B_VISA_driver import AnritsuMS2732BDriver as visa_d
+from qodevices.anritsu.MS2723B_driver import AnritsuMS2723BDriver as tmc_d
+from qodevices.anritsu.MS2723B_VISA_driver import AnritsuMS2723BDriver as visa_d
 
 def test_class_method_1():
     """tmc_d should not have more methods than visa_d"""

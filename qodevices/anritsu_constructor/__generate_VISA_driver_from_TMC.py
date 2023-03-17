@@ -5,9 +5,9 @@ def main():
         return
     
     dirname2 = lambda x: dirname(dirname(x))
-    path_to_tmc = join(dirname2(__file__), 'anritsu/MS2732B_driver.py')
-    path_to_visa = join(dirname2(__file__), 'anritsu/MS2732B_VISA_driver.py')
-    path_to_visa_header = join(dirname(__file__), 'MS2732B_VISA_driver_header.txt')
+    path_to_tmc = join(dirname2(__file__), 'anritsu/MS2723B_driver.py')
+    path_to_visa = join(dirname2(__file__), 'anritsu/MS2723B_VISA_driver.py')
+    path_to_visa_header = join(dirname(__file__), 'MS2723B_VISA_driver_header.txt')
     with open(path_to_tmc, 'r') as tmc_file:
         src = tmc_file.read()
 

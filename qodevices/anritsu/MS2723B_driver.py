@@ -1,57 +1,47 @@
 #!/usr/bin/env python3
 """
-Anritsu Spectrum Analyzer MS2732B VISA driver
+Anritsu Spectrum Analyzer MS2723B USBTMC driver
 
-Thormund - 2023 Initial version for interacting with Anritsu PM2732B RF
+Thormund - 2023 Initial version for interacting with Anritsu PM2723B RF
     Spectrum Analyzer. Adds basic methods such as specifying Centre Frequency,
     Bandwidth, Averaging of Traces, and file saving methods.
 """
 
-__all__ = ["AnritsuMS2732BDriver"]
+__all__ = ["AnritsuMS2723BDriver"]
 
 import logging
-from pyvisa.resources.usb import USBInstrument
-from pyvisa import ResourceManager
-from pyvisa.errors import VisaIOError
+from usbtmc.usbtmc import Instrument
 from time import sleep
 
 
-class AnritsuMS2732BDriver(USBInstrument):
-    def __init__(self, rsc_str: str, delayed_write: bool=False):
-        """Generates instance of Anritsu MS2732B driver.
+class AnritsuMS2723BDriver(Instrument):
+    def __init__(self, *args, **kwargs):
+        """Generates instance of Anritsu MS2723B driver.
 
         Documentation is as provided in https://dl.cdn-anritsu.com/en-us/test-measurement/files/Manuals/Programming-Manual/10580-00176.pdf # noqa: E501
         or newer.
-        Class is build on pvisa library from pyvisa/pyvisa repository.
+        Class is build on usbtmc library from python-ivi/python-usbtmc
+        repository.
         """
-        rm = ResourceManager()
-        self.my_resource = rm.open_resource(rsc_str)
-        print("""Resource has been opened.
-            Close connection by using del on instance.""")
+        super().__init__(*args, **kwargs)
         # self.my_resource.flush()  # Not implemented
 
         # TODO: Store into class or it might get purged
         self.trace_preamble = None
 
         # See write_to_device method.
-        self.delayed_write = delayed_write
+        self.delayed_write = False
         self.write_queue = []
 
     # Typecasts all methods and properties of self.my_resource to self
-    def __getattr__(self, __name: str):
-        if __name in ('_logging_extra', '_resource_name', '_session', 'visalib'):
-            return getattr(self.my_resource, __name)
-        else:
-            raise AttributeError(f"{__name = }")
-
-    @property
-    def ask(self):
-        return self.my_resource.query
+    # def __getattr__(self, __name: str):
+    #     if __name in ('_logging_extra', '_resource_name', '_session', 'visalib'):
+    #         return getattr(self.my_resource, __name)
+    #     else:
+    #         raise AttributeError(f"{__name = }")
 
     def __del__(self) -> None:
-        if self.my_resource._session is not None:
-            # self.my_resource.flush()
-            self.my_resource.close()
+        self.close()
 
     def write_to_device(self) -> None:
         # To avoid VISA hangs, we queue up visa write commands, before
