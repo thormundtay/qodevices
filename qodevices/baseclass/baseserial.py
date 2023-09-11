@@ -6,12 +6,14 @@ Builds on pip's pyserial library
 
 Thormund 18 Nov 2022
 """
+from pathlib import Path
 from serial import Serial
 
 class serial_comm(Serial):
     """Basic class for serial communication"""
     def __init__(self, port, timeout: float = 2) -> None:
-        # self.serial = self._open_port(port, timeout)
+        if not Path(port).exists():
+            raise ValueError(f"port: {port} was not found!")
         super().__init__(port, timeout=timeout)
         self.write('a')  # flush io buffer
         self._serial_read()   # will read unknown command
