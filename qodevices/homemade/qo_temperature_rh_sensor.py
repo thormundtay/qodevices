@@ -30,10 +30,8 @@ class qoTemperatureRhSensor(serial_comm):
         """
         if not device_path:
             raise ValueError('No device path given')
-        try:
-            super().__init__(device_path, timeout=2)
-        except:
-            print('The indicated device cannot be found')
+        # Do not catch all errors in init method haphazardly
+        super().__init__(device_path, timeout=2)
 
 	###### properties ######
 
