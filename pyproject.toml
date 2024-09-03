@@ -20,11 +20,13 @@ classifiers = [
 ]
 dependencies = [
     "LeCroyDSO @ git+ssh://git@github.com/the-fibre-lab/lecroydso.git@main",
+    "psutil",
     "pyserial",
     "python-usbtmc @ git+https://github.com/python-ivi/python-usbtmc.git@master",
     "pyusb",
     "PyVISA",
-    "PyVISA-py"
+    "PyVISA-py",
+    "zeroconf"
 ]
 
 # [project.urls]
